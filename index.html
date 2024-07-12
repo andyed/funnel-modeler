@@ -296,9 +296,9 @@
                 const funnelWidth = p.width * 0.3;
                 const spacing = p.width * 0.1;
 
-                drawFunnel(steps, p.width / 2 - funnelWidth - spacing / 2, funnelWidth, colors.primary);
+                drawFunnel(steps, -60 + p.width / 2 - funnelWidth - spacing / 2, funnelWidth, colors.primary);
                 if (whatIfSteps) {
-                    drawFunnel(whatIfSteps, p.width / 2 + spacing / 2, funnelWidth, colors.secondary);
+                    drawFunnel(whatIfSteps, -60 + p.width / 2 + spacing / 2, funnelWidth, colors.secondary);
                 }
             };
 
