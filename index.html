@@ -220,7 +220,7 @@
             const dropdown = document.getElementById('whatIfStep');
             dropdown.innerHTML = '';
             steps.forEach((step, index) => {
-                if (index < steps.length - 1) {
+                if (index >0 && index < steps.length ) {
                     const option = document.createElement('option');
                     option.value = index;
                     option.textContent = step.name;
@@ -294,16 +294,16 @@
                 p.noStroke();
 
                 const funnelWidth = p.width * 0.3;
-                const spacing = p.width * 0.15;
+                const spacing = p.width * 0.1;
 
-                drawFunnel(steps, -60 + p.width / 2 - funnelWidth - spacing / 2, funnelWidth, colors.primary);
+                drawFunnel(steps, p.width / 2 - funnelWidth - spacing / 2, funnelWidth, colors.primary);
                 if (whatIfSteps) {
-                    drawFunnel(whatIfSteps, -60 + p.width / 2 + spacing / 2, funnelWidth, colors.secondary);
+                    drawFunnel(whatIfSteps, p.width / 2 + spacing / 2, funnelWidth, colors.secondary);
                 }
             };
 
             function drawFunnel(data, startX, funnelWidth, colorSet) {
-                const maxWidth = funnelWidth * 0.95;
+                const maxWidth = funnelWidth * 0.8;
                 const maxHeight = p.height - 50;
                 const startY = 25;
                 const stepHeight = 80; // Fixed step height
