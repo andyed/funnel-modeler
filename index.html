@@ -80,6 +80,7 @@
     </div>
     <div id="funnel"></div>
     <button id="addStepBtn">Add Step</button>
+    <button id="resetBtn">Reset</button>
     <div id="conversion" class="conversion"></div>
     <div id="whatIfScenario">
         <label>What if we improved</label>
@@ -101,6 +102,15 @@
         let whatIfSteps = null;
         let whatIfStepIndex = null;
         let whatIfImprovementPercentage = null;
+
+        // Load data from localStorage
+        if (localStorage.getItem('funnelData')) {
+            steps = JSON.parse(localStorage.getItem('funnelData'));
+        }
+
+        function saveFunnelData() {
+            localStorage.setItem('funnelData', JSON.stringify(steps));
+        }
 
         function renderFunnel() {
             const funnelElement = document.getElementById('funnel');
@@ -125,6 +135,7 @@
             updateConversion();
             updateWhatIfDropdown();
             updateWhatIfScenario();
+            saveFunnelData(); // Save data after rendering
         }
 
         function updateConversion() {
@@ -240,15 +251,20 @@
         function updateWhatIfScenario() {
             if (whatIfStepIndex !== null && whatIfImprovementPercentage !== null) {
                 whatIfSteps = JSON.parse(JSON.stringify(steps));
-                
+
+                // Apply improvement to the selected step's conversion rate
                 const currentRate = whatIfSteps[whatIfStepIndex].stepConversion;
                 const newRate = Math.min(currentRate * (1 + whatIfImprovementPercentage / 100), 100);
-                
                 whatIfSteps[whatIfStepIndex].stepConversion = newRate;
-                whatIfSteps[whatIfStepIndex + 1].count = Math.round(whatIfSteps[whatIfStepIndex].count * (newRate / 100));
-                
+
+                // Update the count of the *selected* step based on the new conversion rate
+                if (whatIfStepIndex > 0) {
+                    whatIfSteps[whatIfStepIndex].count = Math.round(whatIfSteps[whatIfStepIndex - 1].count * (newRate / 100));
+                }
+
+                // Update subsequent steps based on the change
                 updateWhatIfSubsequentSteps(whatIfStepIndex + 1);
-                
+
                 updateConversion();
             }
         }
@@ -267,7 +283,21 @@
         }
 
         document.getElementById('addStepBtn').addEventListener('click', addStep);
+        document.getElementById('resetBtn').addEventListener('click', resetFunnel);
         document.getElementById('applyWhatIfBtn').addEventListener('click', applyWhatIfScenario);
+
+        function resetFunnel() {
+            steps = [
+                { name: 'Step 1', count: 100, stepConversion: 100, survivalRate: 100 },
+                { name: 'Step 2', count: 50, stepConversion: 50, survivalRate: 50 },
+                { name: 'Complete', count: 25, stepConversion: 50, survivalRate: 25 }
+            ];
+            whatIfSteps = null;
+            whatIfStepIndex = null;
+            whatIfImprovementPercentage = null;
+            localStorage.removeItem('funnelData');
+            renderFunnel();
+        }
 
         renderFunnel();
 
