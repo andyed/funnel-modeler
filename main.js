@@ -102,6 +102,8 @@ function addStep() {
     steps.splice(newStepIndex, 0, newStep);
     updateSubsequentSteps(newStepIndex);
     renderFunnel();
+    updateWhatIfDropdown(); // Update the "what-if" scenario dropdown
+    resetWhatIfScenario(); // Reset the "what-if" scenario values
 }
 
 function deleteStep(index) {
@@ -143,6 +145,15 @@ function updateWhatIfDropdown() {
     });
 }
 
+function resetWhatIfScenario() {
+    whatIfSteps = null;
+    whatIfStepIndex = null;
+    whatIfImprovementPercentage = null;
+    document.getElementById('whatIfStep').value = '';
+    document.getElementById('whatIfPercentage').value = 5;
+    document.getElementById('whatIfConversion').innerHTML = '';
+}
+
 document.getElementById('addStepBtn').addEventListener('click', addStep);
 document.getElementById('resetBtn').addEventListener('click', resetFunnel);
 
@@ -157,6 +168,8 @@ function resetFunnel() {
     whatIfImprovementPercentage = null;
     localStorage.removeItem('funnelData');
     renderFunnel();
+    updateWhatIfDropdown(); // Update the "what-if" scenario dropdown
+    resetWhatIfScenario(); // Reset the "what-if" scenario values
 }
 
 renderFunnel();
