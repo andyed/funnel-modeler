@@ -1,19 +1,37 @@
-let steps = [
+const DEFAULT_STEPS = () => [
     { name: 'Step 1', count: 100, stepConversion: 100, survivalRate: 100 },
     { name: 'Step 2', count: 50, stepConversion: 50, survivalRate: 50 },
     { name: 'Complete', count: 25, stepConversion: 50, survivalRate: 25 }
 ];
+
+function loadInitialSteps() {
+    // URL hash wins — shareable permalinks beat local state.
+    const hash = location.hash;
+    if (hash.startsWith('#f=')) {
+        const parsed = decodeStepsFromHash(hash.slice(3));
+        if (Array.isArray(parsed) && parsed.length >= 2) return parsed;
+    }
+    try {
+        const raw = localStorage.getItem('funnelData');
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length >= 2) return parsed;
+        }
+    } catch (e) {}
+    return DEFAULT_STEPS();
+}
+
+let steps = loadInitialSteps();
 let whatIfSteps = null;
 let whatIfStepIndex = null;
 let whatIfImprovementPercentage = null;
 
-// Load data from localStorage
-if (localStorage.getItem('funnelData')) {
-    steps = JSON.parse(localStorage.getItem('funnelData'));
-}
-
 function saveFunnelData() {
     localStorage.setItem('funnelData', JSON.stringify(steps));
+    const encoded = encodeStepsToHash(steps);
+    if (encoded) {
+        try { history.replaceState(null, '', '#f=' + encoded); } catch (e) {}
+    }
 }
 
 function renderFunnel() {
@@ -134,15 +152,34 @@ function moveStepDown(index) {
 
 function updateWhatIfDropdown() {
     const dropdown = document.getElementById('whatIfStep');
+    const prev = dropdown.value;
     dropdown.innerHTML = '';
     steps.forEach((step, index) => {
-        if (index > 0 && index < steps.length - 1) { // Exclude the last step
+        if (index > 0) {
             const option = document.createElement('option');
             option.value = index;
             option.textContent = step.name;
             dropdown.appendChild(option);
         }
     });
+    if (prev && dropdown.querySelector(`option[value="${prev}"]`)) {
+        dropdown.value = prev;
+    }
+}
+
+function importFromText(text) {
+    const newSteps = parseImportText(text);
+    if (!newSteps) {
+        alert('Need at least 2 valid rows. Format: "Name, Count" or "Name<TAB>Count" per line.');
+        return;
+    }
+    steps = newSteps;
+    whatIfSteps = null;
+    whatIfStepIndex = null;
+    whatIfImprovementPercentage = null;
+    renderFunnel();
+    updateWhatIfDropdown();
+    resetWhatIfScenario();
 }
 
 function resetWhatIfScenario() {
@@ -156,20 +193,35 @@ function resetWhatIfScenario() {
 
 document.getElementById('addStepBtn').addEventListener('click', addStep);
 document.getElementById('resetBtn').addEventListener('click', resetFunnel);
+document.getElementById('importBtn').addEventListener('click', () => {
+    importFromText(document.getElementById('importText').value);
+});
+
+// React to back/forward or manual hash edits.
+window.addEventListener('hashchange', () => {
+    const hash = location.hash;
+    if (!hash.startsWith('#f=')) return;
+    const parsed = decodeStepsFromHash(hash.slice(3));
+    if (Array.isArray(parsed) && parsed.length >= 2) {
+        steps = parsed;
+        whatIfSteps = null;
+        whatIfStepIndex = null;
+        whatIfImprovementPercentage = null;
+        renderFunnel();
+        resetWhatIfScenario();
+    }
+});
 
 function resetFunnel() {
-    steps = [
-        { name: 'Step 1', count: 100, stepConversion: 100, survivalRate: 100 },
-        { name: 'Step 2', count: 50, stepConversion: 50, survivalRate: 50 },
-        { name: 'Complete', count: 25, stepConversion: 50, survivalRate: 25 }
-    ];
+    steps = DEFAULT_STEPS();
     whatIfSteps = null;
     whatIfStepIndex = null;
     whatIfImprovementPercentage = null;
     localStorage.removeItem('funnelData');
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
     renderFunnel();
-    updateWhatIfDropdown(); // Update the "what-if" scenario dropdown
-    resetWhatIfScenario(); // Reset the "what-if" scenario values
+    updateWhatIfDropdown();
+    resetWhatIfScenario();
 }
 
 renderFunnel();

@@ -9,6 +9,12 @@
 </head>
 <body>
     <h1>Funnel Calculator with What-If Scenarios</h1>
+    <details id="importPanel">
+        <summary>Import from CSV / TSV</summary>
+        <textarea id="importText" rows="6" placeholder="Name, Count&#10;Landing, 1000&#10;Signup, 420&#10;Purchase, 85"></textarea>
+        <button id="importBtn">Import</button>
+        <p class="hint">One row per step. Comma- or tab-separated. Header row auto-skipped.</p>
+    </details>
     <div class="header">
         <span>Step Name</span>
         <span>Count</span>
@@ -30,6 +36,7 @@
     </div>
     <div id="funnelVisualization"></div>
 
+    <script src="funnel-core.js"></script>
     <script src="main.js"></script>
     <script src="whatIfScenario.js"></script>
 </body>

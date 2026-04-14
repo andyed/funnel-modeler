@@ -60,3 +60,26 @@ button {
     margin-top: 10px;
     font-weight: bold;
 }
+#importPanel {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #1A1A1A;
+    background-color: #FFFFFF;
+}
+#importPanel summary {
+    cursor: pointer;
+    font-weight: bold;
+}
+#importPanel textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+    padding: 8px;
+}
+#importPanel .hint {
+    font-size: 12px;
+    color: #1A1A1A;
+    margin: 8px 0 0;
+}
